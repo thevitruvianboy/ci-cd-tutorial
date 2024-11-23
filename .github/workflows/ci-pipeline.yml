@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Setup project test and build project
+    name: Setup, test, and build project
     env:
       PORT: 5001
     steps:
