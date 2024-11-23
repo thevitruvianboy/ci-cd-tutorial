@@ -5,7 +5,7 @@ on:
       - staging
       - main
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     name: Setup project test and build project
     env:
