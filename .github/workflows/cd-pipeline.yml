@@ -23,6 +23,7 @@ jobs:
       - name: Test application
         run: npm test
   build:
+    needs: test
     runs-on: ubuntu-latest
     name: Setup project, Authorize GitHub actions to GCP and Docker Hub, and deploy
     steps:
@@ -48,18 +49,18 @@ jobs:
 
       - name: Build and tag Image
         run: |
-          docker build -t ${{env.IMAGE}} .
+          docker build -t ${{vars.IMAGE}} .
 
       - name: Push the image to Docker hub
         run: |
-          docker push ${{env.IMAGE}}
+          docker push ${{vars.IMAGE}}
 
       - name: Deploy to GCP Run - Production environment (If a new release was published from the master branch)
         if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.target_commitish == 'main'
         run: |
-          gcloud run deploy ${{env.GCR_PROJECT_NAME}} \
-          --region ${{env.GCR_REGION}} \
-          --image ${{env.IMAGE}} \
+          gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
+          --region ${{vars.GCR_REGION}} \
+          --image ${{vars.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
           --set-env-vars PORT=${{env.PORT}}
@@ -67,9 +68,9 @@ jobs:
       - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR)
         if: github.ref != 'refs/heads/main'
         run: |
-          gcloud run deploy ${{env.GCR_PROJECT_NAME}} \
-          --region ${{env.GCR_REGION}} \
-          --image ${{env.IMAGE}} \
+          gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
+          --region ${{vars.GCR_REGION}} \
+          --image ${{vars.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
           --no-traffic \
