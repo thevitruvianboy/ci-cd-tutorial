@@ -67,7 +67,6 @@ jobs:
           --image ${{vars.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
-          --set-env-vars PORT=${{env.PORT}}
 
       - name: Check if Service Exists
         id: check-service
@@ -91,7 +90,6 @@ jobs:
           --allow-unauthenticated \
           --no-traffic \
           --tag staging \
-          --set-env-vars PORT=${{env.PORT}}
 
       - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR)
         if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 0
@@ -105,7 +103,6 @@ jobs:
             --platform="managed" \
             --allow-unauthenticated \
             --tag staging \
-            --set-env-vars PORT=${{ env.PORT }}
 
           # Immediately update traffic to 0 after deployment
           gcloud run services update-traffic ${{ vars.GCR_PROJECT_NAME }} \
