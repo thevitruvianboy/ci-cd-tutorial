@@ -70,45 +70,46 @@ jobs:
           --allow-unauthenticated \
           --revision-suffix=prod-${{github.sha}}
 
-      - name: Check if Service Exists
-        id: check-service
-        run: |
-          if gcloud run services describe ${{ vars.GCR_PROJECT_NAME }} --region=${{ vars.GCR_REGION }} --platform managed > /dev/null 2>&1; then
-            echo "FUNCTION_EXISTS=1" >> $GITHUB_ENV
-          else
-            echo "FUNCTION_EXISTS=0" >> $GITHUB_ENV
-          fi
+      # - name: Check if Service Exists
+      #   id: check-service
+      #   run: |
+      #     if gcloud run services describe ${{ vars.GCR_PROJECT_NAME }} --region=${{ vars.GCR_REGION }} --platform managed > /dev/null 2>&1; then
+      #       echo "FUNCTION_EXISTS=1" >> $GITHUB_ENV
+      #     else
+      #       echo "FUNCTION_EXISTS=0" >> $GITHUB_ENV
+      #     fi
 
-      - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service previously exists i.e. Update)
-        if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 1
+      # - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service previously exists i.e. Update)
+      # if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 1
+      - name: Deploy to GCP Run - Staging environment
+        if: github.ref != 'refs/heads/main'
         run: |
-          echo "Service exists. Deploying and setting traffic to 0%."
+          echo "Deploying to staging environment"
 
-          # Deploy service with no traffic
-          gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
+          # Deploy service with to staging environment
+          gcloud run deploy ${{vars.GCR_STAGING_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
           --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
-          --no-traffic \
           --tag staging \
           --revision-suffix=staging-${{github.sha}}
 
-      - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service doesn't exist i.e. Initial deploy)
-        if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 0
-        run: |
-          echo "Service does not exist. Deploying and setting traffic to 0."
+      # - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service doesn't exist i.e. Initial deploy)
+      #   if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 0
+      #   run: |
+      #     echo "Service does not exist. Deploying and setting traffic to 0."
 
-          # Deploy service without --no-traffic for initial creation
-          gcloud run deploy ${{ vars.GCR_PROJECT_NAME }} \
-            --region=${{ vars.GCR_REGION }} \
-            --image=${{ env.IMAGE }} \
-            --platform="managed" \
-            --allow-unauthenticated \
-            --tag staging \
-            --revision-suffix=staging-${{github.sha}}
+      #     # Deploy service without --no-traffic for initial creation
+      #     gcloud run deploy ${{ vars.GCR_PROJECT_NAME }} \
+      #       --region=${{ vars.GCR_REGION }} \
+      #       --image=${{ env.IMAGE }} \
+      #       --platform="managed" \
+      #       --allow-unauthenticated \
+      #       --tag staging \
+      #       --revision-suffix=staging-${{github.sha}}
 
-          # Immediately update traffic to 0 after deployment
-          gcloud run services update-traffic ${{ vars.GCR_PROJECT_NAME }} \
-            --region=${{ vars.GCR_REGION }} \
-            --to-latest=0
+      #     # Immediately update traffic to 0 after deployment
+      #     gcloud run services update-traffic ${{ vars.GCR_PROJECT_NAME }} \
+      #       --region=${{ vars.GCR_REGION }} \
+      #       --to-latest=0
