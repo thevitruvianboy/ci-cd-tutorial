@@ -68,6 +68,7 @@ jobs:
           --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
+          --revision-suffix=prod-${{github.sha}}
 
       - name: Check if Service Exists
         id: check-service
@@ -91,6 +92,7 @@ jobs:
           --allow-unauthenticated \
           --no-traffic \
           --tag staging \
+          --revision-suffix=staging-${{github.sha}}
 
       - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service doesn't exist i.e. Initial deploy)
         if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 0
@@ -104,6 +106,7 @@ jobs:
             --platform="managed" \
             --allow-unauthenticated \
             --tag staging \
+            --revision-suffix=staging-${{github.sha}}
 
           # Immediately update traffic to 0 after deployment
           gcloud run services update-traffic ${{ vars.GCR_PROJECT_NAME }} \
