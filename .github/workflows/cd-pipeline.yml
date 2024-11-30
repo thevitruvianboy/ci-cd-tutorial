@@ -1,11 +1,11 @@
 name: CD Pipeline to Google Cloud Run (staging and production)
 on:
-  workflow_dispatch:
-  release:
-    types: published
   push:
     branches:
       - staging
+  workflow_dispatch: {}
+  release:
+    types: published
 
 env:
   PORT: 5001
