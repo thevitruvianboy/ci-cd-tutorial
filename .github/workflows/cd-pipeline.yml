@@ -9,6 +9,7 @@ on:
 
 env:
   PORT: 5001
+  IMAGE: ${{vars.IMAGE}}:${{github.sha}}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -49,11 +50,11 @@ jobs:
 
       - name: Build and tag Image
         run: |
-          docker build -t ${{vars.IMAGE}} .
+          docker build -t ${{env.IMAGE}} .
 
       - name: Push the image to Docker hub
         run: |
-          docker push ${{vars.IMAGE}}
+          docker push ${{env.IMAGE}}
 
       - name: Enable the Billing API
         run: |
@@ -64,7 +65,7 @@ jobs:
         run: |
           gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{vars.IMAGE}} \
+          --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
 
@@ -85,7 +86,7 @@ jobs:
           # Deploy service with no traffic
           gcloud run deploy ${{vars.GCR_PROJECT_NAME}} \
           --region ${{vars.GCR_REGION}} \
-          --image ${{vars.IMAGE}} \
+          --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
           --no-traffic \
@@ -99,7 +100,7 @@ jobs:
           # Deploy service without --no-traffic for initial creation
           gcloud run deploy ${{ vars.GCR_PROJECT_NAME }} \
             --region=${{ vars.GCR_REGION }} \
-            --image=${{ vars.IMAGE }} \
+            --image=${{ env.IMAGE }} \
             --platform="managed" \
             --allow-unauthenticated \
             --tag staging \
