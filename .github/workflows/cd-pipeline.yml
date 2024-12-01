@@ -68,6 +68,7 @@ jobs:
           --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
+          --tag production \
           --revision-suffix=prod-${{github.sha}}
 
       # - name: Check if Service Exists
