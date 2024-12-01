@@ -68,19 +68,9 @@ jobs:
           --image ${{env.IMAGE}} \
           --platform "managed" \
           --allow-unauthenticated \
+          --tag production \
           --revision-suffix=prod-${{github.sha}}
 
-      # - name: Check if Service Exists
-      #   id: check-service
-      #   run: |
-      #     if gcloud run services describe ${{ vars.GCR_PROJECT_NAME }} --region=${{ vars.GCR_REGION }} --platform managed > /dev/null 2>&1; then
-      #       echo "FUNCTION_EXISTS=1" >> $GITHUB_ENV
-      #     else
-      #       echo "FUNCTION_EXISTS=0" >> $GITHUB_ENV
-      #     fi
-
-      # - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service previously exists i.e. Update)
-      # if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 1
       - name: Deploy to GCP Run - Staging environment
         if: github.ref != 'refs/heads/main'
         run: |
@@ -94,22 +84,3 @@ jobs:
           --allow-unauthenticated \
           --tag staging \
           --revision-suffix=staging-${{github.sha}}
-
-      # - name: Deploy to GCP Run - Staging environment (If a push was made to the staging branch, e.g. from a successful PR, AND the Service doesn't exist i.e. Initial deploy)
-      #   if: github.ref != 'refs/heads/main' && env.FUNCTION_EXISTS == 0
-      #   run: |
-      #     echo "Service does not exist. Deploying and setting traffic to 0."
-
-      #     # Deploy service without --no-traffic for initial creation
-      #     gcloud run deploy ${{ vars.GCR_PROJECT_NAME }} \
-      #       --region=${{ vars.GCR_REGION }} \
-      #       --image=${{ env.IMAGE }} \
-      #       --platform="managed" \
-      #       --allow-unauthenticated \
-      #       --tag staging \
-      #       --revision-suffix=staging-${{github.sha}}
-
-      #     # Immediately update traffic to 0 after deployment
-      #     gcloud run services update-traffic ${{ vars.GCR_PROJECT_NAME }} \
-      #       --region=${{ vars.GCR_REGION }} \
-      #       --to-latest=0
