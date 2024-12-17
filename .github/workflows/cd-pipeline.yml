@@ -10,6 +10,7 @@ on:
 env:
   PORT: 5001
   IMAGE: ${{vars.IMAGE}}:${{github.sha}}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -58,7 +59,7 @@ jobs:
 
       - name: Enable the Billing API
         run: |
-          gcloud services enable cloudbilling.googleapis.com --project=${{secrets.GCP_PROJECT_ID}}
+          gcloud services enable cloudbilling.googleapis.com --project=$GCP_PROJECT_ID
 
       - name: Deploy to GCP Run - Production environment (If a new release was published from the master branch)
         if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.target_commitish == 'main'
